@@ -1,0 +1,25 @@
+---
+// The hero: a chat, the plugin's name and its one-line pitch. The answer and the line under it come from
+// site.json's hero (the same in every language) or from the language's strings.answer and ogImageLine.
+// Pass `line` to draw something else first, such as a clock that the runtime later makes live.
+import site from 'virtual:plugin-site'
+
+interface Props { lang: string; line?: string }
+const { lang, line: lineProp } = Astro.props
+const L = site.languages[lang]
+const t = L.strings
+const mono = site.hero.mono
+const answer = site.hero.answer ?? t.answer
+const line = lineProp ?? site.hero.line ?? L.ogImageLine
+const cls = (base: string) => [base, mono && 'mono', 'type'].filter(Boolean).join(' ')
+---
+<div class="hero">
+  <div class="chat pre" id="chat" data-line-ms={site.hero.lineMs}>
+    <p class="bubble" id="ask" set:html={t.ask} />
+    <p class={cls('answer')} id="answer"><span class="sr">{answer}</span><span class="ghost" aria-hidden="true">{answer}</span><span class="typed" aria-hidden="true"></span></p>
+    <p class={cls('line')} id="line"><span class="sr">{line}</span><span class="ghost" aria-hidden="true">{line}</span><span class="typed" aria-hidden="true"></span></p>
+  </div>
+  <h1>{site.name}</h1>
+  {t.subtitle && <p class="subtitle" set:html={t.subtitle} />}
+  {t.lead && <p set:html={t.lead} />}
+</div>

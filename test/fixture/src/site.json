@@ -1,0 +1,87 @@
+{
+  "site": "https://example.github.io/claude-example/",
+  "updated": "2026-11-01",
+  "name": "Example for Claude",
+  "repo": "Example/claude-example",
+  "plugin": "example",
+  "programmingLanguage": "TypeScript",
+  "favicon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3C/svg%3E",
+  "languages": {
+    "en": {
+      "path": "",
+      "title": "Example: a plugin site used by the shared kit's tests",
+      "description": "An example Claude Code plugin site that the shared site kit builds and checks in its own tests, in English and Korean.",
+      "font": "IBM Plex Sans KR",
+      "ogLocale": "en_US",
+      "ogImage": "images/og.png",
+      "ogImageText": "An example",
+      "ogImageLine": "✻ Worked for 1s",
+      "ogImageAlt": "An example preview",
+      "ogTitle": "Example for Claude",
+      "ogDescription": "An example Claude Code plugin site for the kit's tests.",
+      "suggest": {
+        "text": "This page is also in English.",
+        "go": "Read it in English",
+        "close": "Close"
+      },
+      "strings": {
+        "theme": "Toggle light/dark",
+        "copy": "Copy",
+        "copied": "Copied",
+        "installTitle": "Install",
+        "installTerminal": "At the Claude Code terminal prompt:",
+        "installNote": "Answer <code>y</code>.",
+        "installShell": "From a shell:",
+        "installDesktop": "In Claude Desktop, add the marketplace.",
+        "faqTitle": "Questions",
+        "repo": "Repository",
+        "releases": "Releases",
+        "changelog": "Changelog",
+        "foot": "MIT License.",
+        "ask": "Hi",
+        "answer": "Hello. How can I help you today?",
+        "subtitle": "An example plugin site used by the kit's tests.",
+        "q1": "Does it work?",
+        "a1": "Yes."
+      }
+    },
+    "ko": {
+      "path": "ko/",
+      "title": "Example: 공용 키트 테스트에 쓰는 플러그인 사이트",
+      "description": "공용 사이트 키트가 자체 테스트에서 빌드하고 검사하는 예제 Claude Code 플러그인 사이트입니다.",
+      "font": "IBM Plex Sans KR",
+      "ogLocale": "ko_KR",
+      "ogImage": "images/og-ko.png",
+      "ogImageText": "예제",
+      "ogImageLine": "✻ Worked for 1s",
+      "ogImageAlt": "예제 미리보기",
+      "ogTitle": "Example for Claude",
+      "ogDescription": "키트 테스트에 쓰는 예제 Claude Code 플러그인 사이트입니다.",
+      "suggest": {
+        "text": "이 페이지는 한국어로도 볼 수 있습니다.",
+        "go": "한국어로 보기",
+        "close": "닫기"
+      },
+      "strings": {
+        "theme": "라이트/다크 전환",
+        "copy": "복사",
+        "copied": "복사했습니다",
+        "installTitle": "설치",
+        "installTerminal": "Claude Code 터미널에서:",
+        "installNote": "<code>y</code>를 누릅니다.",
+        "installShell": "셸에서는:",
+        "installDesktop": "Claude Desktop에서 마켓플레이스를 추가합니다.",
+        "faqTitle": "자주 묻는 질문",
+        "repo": "저장소",
+        "releases": "릴리스",
+        "changelog": "변경 기록",
+        "foot": "MIT License.",
+        "ask": "안녕?",
+        "answer": "안녕하세요. 무엇을 도와드릴까요?",
+        "subtitle": "키트 테스트에 쓰는 예제 플러그인 사이트입니다.",
+        "q1": "동작하나요?",
+        "a1": "네."
+      }
+    }
+  }
+}

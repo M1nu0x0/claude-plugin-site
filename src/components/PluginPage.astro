@@ -1,0 +1,109 @@
+---
+// The whole page around a plugin site's own sections: the SEO head, the header with the language links and
+// the theme toggle, the footer, the language offer and the behaviour script. Everything here comes from
+// src/site.json, so a page only writes its hero and sections.
+//   <PluginPage lang={lang}>
+//     <Hero slot="hero" lang={lang} />
+//     <section>…</section>
+//   </PluginPage>
+import site from 'virtual:plugin-site'
+import { alternates, langs, navLangs, LABELS, pageUrl, rel, repoName, repoUrl } from '../site.mjs'
+import redirect from '../scripts/redirect.js?raw'
+import '../styles/base.css'
+
+interface Props { lang: string }
+const { lang } = Astro.props
+const L = site.languages[lang]
+if (!L) throw new Error(`PluginPage: no language "${lang}" in site.json`)
+const t = L.strings
+const url = pageUrl(site, lang)
+const image = site.site + L.ogImage
+const others = langs(site).filter(l => l !== lang)
+const pages = Object.fromEntries(langs(site).map(l => [l, rel(site, lang, l)]))
+const offers = Object.fromEntries(others.map(l => [l, { ...site.languages[l].suggest, href: rel(site, lang, l) }]))
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: site.name,
+  alternateName: repoName(site),
+  description: L.description,
+  url,
+  image,
+  ...(site.version ? { softwareVersion: site.version } : {}),
+  dateModified: site.updated,
+  codeRepository: repoUrl(site),
+  programmingLanguage: site.programmingLanguage,
+  license: 'https://opensource.org/licenses/MIT',
+  author: { '@type': 'Person', name: site.repo.split('/')[0], url: `https://github.com/${site.repo.split('/')[0]}` },
+  inLanguage: lang,
+}
+const fonts = `https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=${L.font.replace(/ /g, '+')}:wght@400;600&display=swap`
+---
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script is:inline data-pages={JSON.stringify(pages)} set:html={redirect} />
+<title>{L.title}</title>
+<meta name="description" content={L.description}>
+<link rel="canonical" href={url}>
+{alternates(site).map(([l, href]) => <link rel="alternate" hreflang={l} href={href}>)}
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1C1C" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content={repoName(site)}>
+<meta property="og:title" content={L.ogTitle}>
+<meta property="og:description" content={L.ogDescription}>
+<meta property="og:url" content={url}>
+<meta property="og:image" content={image}>
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content={L.ogImageAlt}>
+<meta property="og:locale" content={L.ogLocale}>
+{others.map(l => <meta property="og:locale:alternate" content={site.languages[l].ogLocale}>)}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image:alt" content={L.ogImageAlt}>
+<script is:inline type="application/ld+json" set:html={JSON.stringify(ld, null, 2).replace(/</g, '\\u003c')} />
+<link rel="icon" href={site.favicon}>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href={fonts} rel="stylesheet">
+<noscript><style is:inline>.chat.pre .bubble { opacity: 1; transform: none; } .type > .ghost { visibility: visible; } .controls button, .controls .sep { display: none; }</style></noscript>
+<slot name="head" />
+</head>
+<body data-copied={t.copied} data-offers={JSON.stringify(offers)}>
+<div class="wrap">
+  <header class="top">
+    <a class="name" href={repoUrl(site)}>{repoName(site)}</a>
+    <div class="controls">
+      {navLangs(site).map(l => (
+        <a data-lang-link={l} href={rel(site, lang, l)} aria-current={l === lang ? 'page' : undefined} hreflang={l} lang={l}>{LABELS[l] ?? l}</a>
+      ))}
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="theme" aria-label={t.theme}></button>
+      <a href={repoUrl(site)}>GitHub</a>
+    </div>
+  </header>
+
+  <main>
+    <slot name="hero" />
+    <slot />
+  </main>
+
+  <footer>
+    <nav>
+      <a href={repoUrl(site)} set:html={t.repo} />
+      <a href={`${repoUrl(site)}/releases`} set:html={t.releases} />
+      <a href={`${repoUrl(site)}/blob/main/CHANGELOG.md`} set:html={t.changelog} />
+    </nav>
+    <p set:html={t.foot} />
+  </footer>
+  <p class="offer" id="offer" role="status" hidden><span></span><a></a><button type="button"></button></p>
+</div>
+<slot name="scripts" />
+<script>
+  import '../scripts/runtime.mjs'
+</script>
+</body>
+</html>

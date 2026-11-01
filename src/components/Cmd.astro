@@ -1,0 +1,11 @@
+---
+// A command with a copy button.
+import site from 'virtual:plugin-site'
+
+interface Props { lang: string; code: string }
+const { lang, code } = Astro.props
+---
+<div class="cmd">
+  <pre tabindex="0"><code>{code}</code></pre>
+  <button type="button" class="copy">{site.languages[lang].strings.copy}</button>
+</div>

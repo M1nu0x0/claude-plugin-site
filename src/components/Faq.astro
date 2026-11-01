@@ -1,0 +1,13 @@
+---
+// The questions section: every q1/a1, q2/a2, … pair in the language's strings, in number order.
+import site from 'virtual:plugin-site'
+
+interface Props { lang: string }
+const { lang } = Astro.props
+const t = site.languages[lang].strings
+const numbers = Object.keys(t).filter(k => /^q\d+$/.test(k)).map(k => Number(k.slice(1))).sort((a, b) => a - b)
+---
+<section aria-labelledby="faq">
+  <h2 id="faq" set:html={t.faqTitle} />
+  {numbers.map(n => <details><summary set:html={t[`q${n}`]} /><p set:html={t[`a${n}`]} /></details>)}
+</section>

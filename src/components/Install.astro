@@ -1,0 +1,19 @@
+---
+// The install section, the same for every plugin in its own marketplace repo.
+import site from 'virtual:plugin-site'
+import Cmd from './Cmd.astro'
+
+interface Props { lang: string }
+const { lang } = Astro.props
+const t = site.languages[lang].strings
+const args = `${site.plugin} --marketplace ${site.repo}`
+---
+<section aria-labelledby="install">
+  <h2 id="install" set:html={t.installTitle} />
+  <p set:html={t.installTerminal} />
+  <Cmd lang={lang} code={`/plugin install ${args}`} />
+  <p set:html={t.installNote} />
+  <p set:html={t.installShell} />
+  <Cmd lang={lang} code={`claude plugin install ${args}`} />
+  <p set:html={t.installDesktop} />
+</section>

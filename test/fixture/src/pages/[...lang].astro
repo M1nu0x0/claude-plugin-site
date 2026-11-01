@@ -1,0 +1,16 @@
+---
+import site from 'virtual:plugin-site'
+import { staticPaths } from '@m1nu0x0/claude-plugin-site'
+import PluginPage from '@m1nu0x0/claude-plugin-site/components/PluginPage.astro'
+import Hero from '@m1nu0x0/claude-plugin-site/components/Hero.astro'
+import Install from '@m1nu0x0/claude-plugin-site/components/Install.astro'
+import Faq from '@m1nu0x0/claude-plugin-site/components/Faq.astro'
+
+export const getStaticPaths = () => staticPaths(site)
+const { lang } = Astro.props
+---
+<PluginPage lang={lang}>
+  <Hero slot="hero" lang={lang} />
+  <Install lang={lang} />
+  <Faq lang={lang} />
+</PluginPage>
