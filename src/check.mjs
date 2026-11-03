@@ -1,3 +1,4 @@
+// @ts-check
 // Checks the built site the way a crawler reads it: the HTML as served, without running any script.
 // Every rule here is mechanical, so the same site always gets the same verdict.
 import { existsSync, readFileSync, statSync } from 'node:fs'
@@ -5,6 +6,8 @@ import { join } from 'node:path'
 import { parse } from 'node-html-parser'
 import { HtmlValidate } from 'html-validate'
 import { alternates, langs, pageUrl } from './site.mjs'
+
+/** @typedef {import('./schema.mjs').Site} Site */
 
 const validator = new HtmlValidate({
   extends: ['html-validate:recommended'],
@@ -27,9 +30,11 @@ const validator = new HtmlValidate({
   },
 })
 
+/** @param {(string | undefined)[]} a @param {(string | undefined)[]} b */
 const sameSet = (a, b) => a.length === b.length && [...a].sort().join('\n') === [...b].sort().join('\n')
 
 // The file a URL on this site is served from, or null when the URL is not on this site.
+/** @param {string} out @param {Site} site @param {URL} url @returns {string | null} */
 function fileFor(out, site, url) {
   const base = new URL(site.site)
   if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) return null
@@ -38,8 +43,12 @@ function fileFor(out, site, url) {
   return join(out, path)
 }
 
+/** @param {string} out @param {Site} site @returns {Promise<{ errors: string[], warnings: string[] }>} */
 export async function checkDist(out, site) {
-  const errors = [], warnings = []
+  /** @type {string[]} */
+  const errors = []
+  /** @type {string[]} */
+  const warnings = []
   const want = alternates(site)
 
   for (const l of langs(site)) {
@@ -50,9 +59,9 @@ export async function checkDist(out, site) {
     if (!existsSync(file)) { errors.push(`${where}: not built`); continue }
     const html = readFileSync(file, 'utf8')
     const doc = parse(html, { comment: false })
-    const err = m => errors.push(`${where}: ${m}`)
-    const meta = sel => doc.querySelectorAll(sel).map(e => e.getAttribute('content'))
-    const one = (sel, label) => {
+    const err = (/** @type {string} */ m) => errors.push(`${where}: ${m}`)
+    const meta = (/** @type {string} */ sel) => doc.querySelectorAll(sel).map(e => e.getAttribute('content'))
+    const one = (/** @type {string} */ sel, /** @type {string} */ label) => {
       const all = doc.querySelectorAll(sel)
       if (all.length !== 1) err(`${all.length} × ${label}, want exactly 1`)
       return all[0]
@@ -69,7 +78,7 @@ export async function checkDist(out, site) {
     const alts = doc.querySelectorAll('link[rel="alternate"][hreflang]').map(e => `${e.getAttribute('hreflang')} ${e.getAttribute('href')}`)
     if (!sameSet(alts, want.map(([a, b]) => `${a} ${b}`))) err(`hreflang alternates are [${alts.join(', ')}]`)
 
-    const og = p => meta(`meta[property="${p}"]`)
+    const og = (/** @type {string} */ p) => meta(`meta[property="${p}"]`)
     if (og('og:url')[0] !== url) err('og:url is not the canonical URL')
     if (og('og:title')[0] !== L.ogTitle) err('og:title differs from site.json')
     if (og('og:description')[0] !== L.ogDescription) err('og:description differs from site.json')
@@ -90,7 +99,7 @@ export async function checkDist(out, site) {
         if (data.inLanguage !== l) err(`JSON-LD inLanguage is ${data.inLanguage}`)
         if (data.url !== url) err('JSON-LD url is not the canonical URL')
         if (!data.softwareVersion) warnings.push(`${where}: JSON-LD has no softwareVersion`)
-      } catch (e) { err(`JSON-LD does not parse: ${e.message}`) }
+      } catch (e) { err(`JSON-LD does not parse: ${/** @type {Error} */ (e).message}`) }
     }
 
     const h1 = doc.querySelectorAll('h1')
@@ -100,7 +109,8 @@ export async function checkDist(out, site) {
       if (img.getAttribute('alt') === undefined) err(`<img src="${src}"> has no alt`)
       // Images of this site have a known size. An outside image such as a badge can vary in width, so it
       // needs at least a height to keep the line from jumping.
-      const local = fileFor(out, site, new URL(src, url)) !== null
+      // An <img> with no src counts as one of this site's own, as it did before src was typed.
+      const local = fileFor(out, site, new URL(src ?? '', url)) !== null
       if (local ? !img.getAttribute('width') || !img.getAttribute('height') : !img.getAttribute('height')) {
         err(`<img src="${src}"> has no ${local ? 'width and height' : 'height'} (layout shift)`)
       }

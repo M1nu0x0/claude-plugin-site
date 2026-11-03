@@ -1,3 +1,4 @@
+// @ts-check
 // The Astro integration. In astro.config.mjs:
 //   import pluginSite from '@m1nu0x0/claude-plugin-site'
 //   export default defineConfig({ integrations: [pluginSite()] })
@@ -14,18 +15,27 @@ export { checkSite, KIT_KEYS, width } from './schema.mjs'
 export * from './site.mjs'
 export * from './hero.mjs'
 
+/** @typedef {import('./schema.mjs').Site} Site */
+
 // Reads site.json and the plugin's version. Throws with every problem listed when the data is not valid.
+/**
+ * @param {string} file
+ * @param {string} [pluginJson]
+ * @returns {{ site: Site, warnings: string[] }}
+ */
 export function loadSite(file, pluginJson) {
   const { site, errors, warnings } = checkSite(JSON.parse(readFileSync(file, 'utf8')))
   if (errors.length) {
-    const e = new Error(`${file} is not valid:\n  - ${errors.join('\n  - ')}`)
+    const e = /** @type {Error & { warnings?: string[] }} */ (new Error(`${file} is not valid:\n  - ${errors.join('\n  - ')}`))
     e.warnings = warnings
     throw e
   }
   const version = pluginJson ? JSON.parse(readFileSync(pluginJson, 'utf8')).version : undefined
-  return { site: { ...site, version }, warnings }
+  // No errors, so checkSite returned the site.
+  return { site: { .../** @type {Site} */ (site), version }, warnings }
 }
 
+/** @param {Site} site @returns {string} */
 export function sitemap(site) {
   const links = alternates(site).map(([l, href]) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${href}"/>`).join('\n')
   const urls = langs(site).map(l => `  <url>
@@ -42,7 +52,13 @@ ${urls}
 
 const VIRTUAL = 'virtual:plugin-site'
 
+/**
+ * @param {{ data?: string, pluginJson?: string }} [options]
+ * @returns {import('astro').AstroIntegration}
+ */
 export default function pluginSite({ data = 'src/site.json', pluginJson } = {}) {
+  // Set by astro:config:setup, which runs before astro:build:done.
+  /** @type {Site} */
   let site
   return {
     name: '@m1nu0x0/claude-plugin-site',
@@ -66,8 +82,8 @@ export default function pluginSite({ data = 'src/site.json', pluginJson } = {}) 
           vite: {
             plugins: [{
               name: VIRTUAL,
-              resolveId: id => (id === VIRTUAL ? '\0' + VIRTUAL : undefined),
-              load: id => (id === '\0' + VIRTUAL ? `export default ${JSON.stringify(site)}` : undefined),
+              resolveId: (/** @type {string} */ id) => (id === VIRTUAL ? '\0' + VIRTUAL : undefined),
+              load: (/** @type {string} */ id) => (id === '\0' + VIRTUAL ? `export default ${JSON.stringify(site)}` : undefined),
             }],
           },
         })

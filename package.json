@@ -5,7 +5,13 @@
   "license": "MIT",
   "type": "module",
   "repository": "github:M1nu0x0/claude-plugin-site",
-  "keywords": ["astro-component", "astro-integration", "claude-code", "seo", "i18n"],
+  "keywords": [
+    "astro-component",
+    "astro-integration",
+    "claude-code",
+    "seo",
+    "i18n"
+  ],
   "exports": {
     ".": "./src/index.mjs",
     "./site": "./src/site.mjs",
@@ -16,7 +22,12 @@
   "bin": {
     "plugin-site": "./bin/plugin-site.mjs"
   },
-  "files": ["src", "bin", "README.md", "LICENSE"],
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=22.23.4"
   },
@@ -25,7 +36,9 @@
     "playwright": "*"
   },
   "peerDependenciesMeta": {
-    "playwright": { "optional": true }
+    "playwright": {
+      "optional": true
+    }
   },
   "dependencies": {
     "html-validate": "^11.17.0",
@@ -33,9 +46,12 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "astro": "^7.4.4"
+    "@types/node": "^24.19.2",
+    "astro": "^7.4.4",
+    "typescript": "^7.0.2"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc"
   }
 }

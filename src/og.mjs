@@ -1,11 +1,15 @@
+// @ts-check
 // The link-preview image, 1200x630: the site's hero in one language. `plugin-site og` draws it.
+/** @param {string} s */
 const text = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
+/** @param {import('./schema.mjs').Site} site @param {string} lang @returns {string} */
 export function ogHtml(site, lang) {
   const L = site.languages[lang]
   const mono = site.hero.mono
   const answer = site.hero.answer ?? L.strings.answer
-  const line = L.ogImageLine ?? site.hero.line
+  // checkSite requires one of the two.
+  const line = /** @type {string} */ (L.ogImageLine ?? site.hero.line)
   // The question is a translated string that may carry markup; the image wants it as plain text.
   const ask = L.strings.ask.replace(/<[^>]+>/g, '')
   const font = L.font

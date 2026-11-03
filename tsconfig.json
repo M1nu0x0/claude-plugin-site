@@ -1,0 +1,18 @@
+{
+  // Type checks the kit's JavaScript from its JSDoc, under strict, and emits nothing: sites install the kit from
+  // git and Node runs its .mjs files as they are (Node will not strip types from files under node_modules).
+  "compilerOptions": {
+    "target": "es2024",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.mjs", "src/**/*.js", "src/**/*.d.ts", "bin/**/*.mjs", "test/**/*.mjs"],
+  "exclude": ["test/fixture"]
+}
