@@ -1,6 +1,6 @@
 {
   "name": "@m1nu0x0/claude-plugin-site",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared Astro kit for the GitHub Pages sites of Claude Code plugins: per-language pages, SEO head, sitemap and build-time checks.",
   "license": "MIT",
   "type": "module",

@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-03
+
 ### Changed
 
 - Every file has `// @ts-check` and JSDoc types, and `npm run typecheck` (run in CI) checks them with `tsc` under `strict`; the kit stays JavaScript with no build step, since Node will not run TypeScript from `node_modules`. The `Site` type comes from the zod schema
