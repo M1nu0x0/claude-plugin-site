@@ -145,8 +145,12 @@ npm run og                    # public/images/og*.png 생성 (Playwright와 Chro
 
 ```sh
 npm install
+npm run typecheck  # JSDoc 타입을 tsc로 검사(checkJs, strict, 출력 없음)
 npm test        # test/fixture 예제 사이트를 빌드하고, 일부러 망가뜨린 결과를 검사가 잡는지 확인
 ```
+
+키트는 빌드 없이 그대로 쓰이는 JavaScript(`.mjs`)입니다. 사이트가 git으로 설치하면 키트가 `node_modules`에 놓이는데, Node는 `node_modules` 안의 TypeScript를 실행하지 않기 때문입니다. 대신 모든 파일에 `// @ts-check`와 JSDoc 타입을 달고, `npm run typecheck`가 `tsc`로 엄격하게(`strict`) 검사합니다. `site.json`의 타입(`Site`)은 `src/schema.mjs`의 zod 스키마에서 나옵니다.
+
 
 바꾼 뒤에는 `package.json`의 `version`을 올리고 같은 이름의 태그(`v0.2.0`)를 만듭니다. 각 플러그인 레포는 `site/package.json`의 `#v0.1.0`을 새 태그로 바꿔 받습니다.
 

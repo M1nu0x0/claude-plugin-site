@@ -1,3 +1,4 @@
+// @ts-check
 // npm test
 // Builds the example site in test/fixture with Astro, then breaks copies of its data and output to make
 // sure each rule fails when it should.
@@ -13,12 +14,14 @@ import { checkDist } from '../src/check.mjs'
 import { rel, staticPaths } from '../src/site.mjs'
 
 const fixture = fileURLToPath(new URL('./fixture/', import.meta.url))
-const data = () => JSON.parse(readFileSync(join(fixture, 'src/site.json'), 'utf8'))
-const errorsOf = mutate => { const d = data(); mutate(d); return checkSite(d).errors }
+// The fixture's site.json as plain data, for tests that break it on purpose.
+const data = () => /** @type {any} */ (JSON.parse(readFileSync(join(fixture, 'src/site.json'), 'utf8')))
+const errorsOf = (/** @type {(d: any) => void} */ mutate) => { const d = data(); mutate(d); return checkSite(d).errors }
 
 test('the example site.json passes', () => {
   const { errors, site } = checkSite(data())
   assert.deepEqual(errors, [])
+  assert.ok(site)
   assert.equal(site.hero.mono, false)
 })
 
@@ -43,6 +46,7 @@ test('site.json rules fail when they should', () => {
 
 test('URL helpers', () => {
   const { site } = checkSite(data())
+  assert.ok(site)
   assert.equal(rel(site, 'en', 'ko'), './ko/')
   assert.equal(rel(site, 'ko', 'en'), '../')
   assert.equal(rel(site, 'ko', 'ko'), './')
@@ -52,10 +56,11 @@ test('URL helpers', () => {
 test('the example site builds, and broken output fails the checks', async t => {
   execFileSync('npx', ['astro', 'build', '--silent'], { cwd: fixture, stdio: 'inherit' })
   const { site } = checkSite(data())
+  assert.ok(site)
   const built = join(fixture, 'dist')
   assert.deepEqual((await checkDist(built, { ...site, version: '1.2.3' })).errors, [])
 
-  const broken = async edit => {
+  const broken = async (/** @type {(html: string) => string} */ edit) => {
     const dir = mkdtempSync(join(tmpdir(), 'plugin-site-'))
     cpSync(built, dir, { recursive: true })
     const file = join(dir, 'ko/index.html')

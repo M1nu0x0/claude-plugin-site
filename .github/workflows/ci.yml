@@ -25,6 +25,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Type check the kit from its JSDoc (checkJs, strict)
+        run: npm run typecheck
+
       - name: Build the example site and check that each rule fails when it should
         run: npm test
 

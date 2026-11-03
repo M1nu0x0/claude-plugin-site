@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-check
 // Commands for a plugin site, run from its site/ directory:
 //   plugin-site lint            check src/site.json against the schema and the SEO rules
 //   plugin-site check [dist]    check a built site again (astro build already does this)
@@ -12,20 +13,27 @@ import { checkSite } from '../src/schema.mjs'
 import { checkDist } from '../src/check.mjs'
 import { ogHtml } from '../src/og.mjs'
 
+/** @typedef {import('../src/schema.mjs').Site} Site */
+
 const [cmd, arg] = process.argv.slice(2)
 const SITE_JSON = 'src/site.json'
+/** @param {string} f @returns {unknown} */
 const readJson = f => JSON.parse(readFileSync(f, 'utf8'))
 
+/** @returns {Site} */
 function load() {
   if (!existsSync(SITE_JSON)) fail(`no ${SITE_JSON} here; run plugin-site from the site's directory`)
   const { site, errors, warnings } = checkSite(readJson(SITE_JSON))
   for (const w of warnings) console.log(`::warning file=${SITE_JSON}::${w}`)
   if (errors.length) fail(errors.map(e => `${SITE_JSON}: ${e}`).join('\n'))
-  return site
+  // No errors, so checkSite returned the site.
+  return /** @type {Site} */ (site)
 }
+/** @param {string} msg @returns {never} */
 function fail(msg) { console.error(msg); process.exit(1) }
 
 // The page sources whose words count for `updated`: .astro files under src/, without <style> and <script>.
+/** @param {string} dir @returns {string[]} */
 function astroFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
     const p = join(dir, e.name)
@@ -50,14 +58,14 @@ switch (cmd) {
   case 'lastmod': {
     if (!arg) fail('usage: plugin-site lastmod <base commit>')
     const prefix = execFileSync('git', ['rev-parse', '--show-prefix'], { encoding: 'utf8' }).trim()
-    const show = path => {
+    const show = (/** @type {string} */ path) => {
       try { return execFileSync('git', ['show', `${arg}:${prefix}${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) }
       catch { return null }
     }
-    const words = s => s.replace(/<(style|script)\b[\s\S]*?<\/\1>/g, '')
+    const words = (/** @type {string} */ s) => s.replace(/<(style|script)\b[\s\S]*?<\/\1>/g, '')
     const oldJson = show(SITE_JSON)
     if (oldJson === null) { console.log(`the base has no ${SITE_JSON} yet`); break }
-    const strip = json => { const { updated, ...rest } = JSON.parse(json); return { updated, rest: JSON.stringify(rest) } }
+    const strip = (/** @type {string} */ json) => { const { updated, ...rest } = JSON.parse(json); return { updated, rest: JSON.stringify(rest) } }
     const before = strip(oldJson), after = strip(readFileSync(SITE_JSON, 'utf8'))
     let changed = before.rest !== after.rest
     for (const f of astroFiles('src')) {

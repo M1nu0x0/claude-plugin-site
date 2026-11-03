@@ -1,3 +1,4 @@
+// @ts-check
 // The shape of a plugin site's site/src/site.json, and the SEO rules every site must pass before it builds.
 // Errors stop the build; warnings are printed and the build goes on.
 import { z } from 'zod'
@@ -49,11 +50,15 @@ export const siteSchema = z.object({
   languages: z.record(z.string().regex(LANG), language),
 }).strict()
 
+/** @typedef {import('zod').infer<typeof siteSchema> & { version?: string }} Site A parsed site.json, and the plugin version the integration adds */
+
 // How wide text shows in a search result: CJK and Hangul take about two Latin letters' room.
-const WIDE = /[ᄀ-ᇿ　-〿぀-ヿ㄰-㆏㐀-䶿一-鿿가-힣＀-｠￠-￦]/u
+const WIDE = /[\u1100-\u11FF\u3000-\u303F\u3040-\u30FF\u3130-\u318F\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7A3\uFF00-\uFF60\uFFE0-\uFFE6]/u
+/** @param {string} s @returns {number} */
 export const width = s => Array.from(s).reduce((n, c) => n + (WIDE.test(c) ? 2 : 1), 0)
 
 // [field, min, warnAbove, errorAbove], in display width.
+/** @type {[('title' | 'description' | 'ogTitle' | 'ogDescription'), number, number, number][]} */
 const LIMITS = [
   ['title', 20, 70, 90],
   ['description', 50, 165, 220],
@@ -62,8 +67,12 @@ const LIMITS = [
 ]
 
 // Returns { site, errors, warnings }. site is the parsed data with defaults filled in, or null on a schema error.
+/** @param {unknown} data @returns {{ site: Site | null, errors: string[], warnings: string[] }} */
 export function checkSite(data) {
-  const errors = [], warnings = []
+  /** @type {string[]} */
+  const errors = []
+  /** @type {string[]} */
+  const warnings = []
   const parsed = siteSchema.safeParse(data)
   if (!parsed.success) {
     for (const issue of parsed.error.issues) errors.push(`${issue.path.join('.') || '(root)'}: ${issue.message}`)
